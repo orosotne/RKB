@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales, isLocale } from '@/i18n/request';
-import { SITE_URL } from '@/lib/site-config';
+import { SITE_URL, FEATURES } from '@/lib/site-config';
 import "../globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -39,7 +39,18 @@ export async function generateMetadata({ params: { locale } }: { params: { local
     metadataBase: new URL(SITE_URL),
     title,
     description,
-    keywords: ["kaštieľ Bošany", "Bošany", "Partizánske", "svadby Bošany", "svadby Partizánske", "castle", "weddings", "conferences", "gallery", "renaissance", "history", "Horné Nitra"],
+    keywords: [
+      "kaštieľ Bošany",
+      "Bošany",
+      "Partizánske",
+      ...(FEATURES.weddings ? ["svadby Bošany", "svadby Partizánske", "weddings"] : []),
+      "castle",
+      "conferences",
+      "gallery",
+      "renaissance",
+      "history",
+      "Horné Nitra",
+    ],
     authors: [{ name: "Renesančný kaštieľ Bošany" }],
     icons: {
       icon: [

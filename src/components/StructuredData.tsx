@@ -1,8 +1,17 @@
 import Script from "next/script";
 import { getLocale } from "next-intl/server";
-import { SITE_URL, CONTACT } from "@/lib/site-config";
+import { SITE_URL, CONTACT, FEATURES } from "@/lib/site-config";
 
-const faqByLocale: Record<string, Array<{ question: string; answer: string }>> = {
+type FaqEntry = {
+  question: string;
+  answer: string;
+  /** Emitted only while FEATURES.weddings is on */
+  weddingsOnly?: boolean;
+  /** Replaces `answer` while FEATURES.weddings is off */
+  answerWithoutWeddings?: string;
+};
+
+const faqByLocale: Record<string, FaqEntry[]> = {
   sk: [
     {
       question: "Kde sa nachádza Renesančný kaštieľ Bošany?",
@@ -13,6 +22,8 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "Aké služby ponúka kaštieľ?",
       answer:
         "Ponúkame svadby, konferencie, galériu a kultúrne podujatia. V parku nájdete alpaky, jazierko s koi kaprami a vínnu pivnicu.",
+      answerWithoutWeddings:
+        "Ponúkame konferencie, galériu a kultúrne podujatia. V parku nájdete alpaky, jazierko s koi kaprami a vínnu pivnicu.",
     },
     {
       question: "Ako vás môžem kontaktovať?",
@@ -28,6 +39,7 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "Organizujete svadby v kaštieli Bošany?",
       answer:
         "Áno, Renesančný kaštieľ Bošany ponúka svadobný priestor pre do 150 hostí. Ideálne pre svadby z Partizánskeho, Topoľčian a okolia.",
+      weddingsOnly: true,
     },
     {
       question: "Ako ďaleko je kaštieľ od Partizánskeho?",
@@ -45,6 +57,8 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "What services does the castle offer?",
       answer:
         "We offer weddings, conferences, gallery and cultural events. In the park you will find alpacas, a pond with koi carp and a wine cellar.",
+      answerWithoutWeddings:
+        "We offer conferences, gallery and cultural events. In the park you will find alpacas, a pond with koi carp and a wine cellar.",
     },
     {
       question: "How can I contact you?",
@@ -60,6 +74,7 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "Do you organize weddings at Bošany Castle?",
       answer:
         "Yes, Renaissance Castle Bošany offers a wedding venue for up to 150 guests. Ideal for weddings from Partizánske, Topoľčany and the surrounding area.",
+      weddingsOnly: true,
     },
     {
       question: "How far is the castle from Partizánske?",
@@ -77,6 +92,8 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "Welche Dienstleistungen bietet das Schloss an?",
       answer:
         "Wir bieten Hochzeiten, Konferenzen, Galerie und kulturelle Veranstaltungen an. Im Park finden Sie Alpakas, einen Teich mit Koi-Karpfen und einen Weinkeller.",
+      answerWithoutWeddings:
+        "Wir bieten Konferenzen, Galerie und kulturelle Veranstaltungen an. Im Park finden Sie Alpakas, einen Teich mit Koi-Karpfen und einen Weinkeller.",
     },
     {
       question: "Wie kann ich Sie kontaktieren?",
@@ -92,6 +109,7 @@ const faqByLocale: Record<string, Array<{ question: string; answer: string }>> =
       question: "Veranstalten Sie Hochzeiten im Schloss Bošany?",
       answer:
         "Ja, das Renaissanceschloss Bošany bietet einen Hochzeitsort für bis zu 150 Gäste. Ideal für Hochzeiten aus Partizánske, Topoľčany und der Umgebung.",
+      weddingsOnly: true,
     },
     {
       question: "Wie weit ist das Schloss von Partizánske entfernt?",
@@ -130,8 +148,9 @@ export default async function StructuredData() {
     "@type": ["LandmarksOrHistoricalBuildings", "LocalBusiness"],
     name: "Kaštieľ Bošany",
     alternateName: "Renesančný kaštieľ Bošany",
-    description:
-      "Renesančný kaštieľ Bošany - miesto kde sa história vracia do života. Svadby, konferencie, galéria a kultúrne podujatia.",
+    description: FEATURES.weddings
+      ? "Renesančný kaštieľ Bošany - miesto kde sa história vracia do života. Svadby, konferencie, galéria a kultúrne podujatia."
+      : "Renesančný kaštieľ Bošany - miesto kde sa história vracia do života. Konferencie, galéria a kultúrne podujatia.",
     url: SITE_URL,
     telephone: CONTACT.phoneHref,
     email: CONTACT.email,
@@ -153,10 +172,14 @@ export default async function StructuredData() {
       "@type": "OfferCatalog",
       name: "Služby kaštieľa",
       itemListElement: [
-        {
-          "@type": "Offer",
-          itemOffered: { "@type": "Service", name: "Svadby" },
-        },
+        ...(FEATURES.weddings
+          ? [
+              {
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name: "Svadby" },
+              },
+            ]
+          : []),
         {
           "@type": "Offer",
           itemOffered: { "@type": "Service", name: "Konferencie" },
@@ -209,7 +232,9 @@ export default async function StructuredData() {
     ],
   };
 
-  const faqItems = faqByLocale[locale] || faqByLocale.sk;
+  const faqItems = (faqByLocale[locale] || faqByLocale.sk).filter(
+    (item) => FEATURES.weddings || !item.weddingsOnly
+  );
   const faqPage = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -218,7 +243,10 @@ export default async function StructuredData() {
       name: item.question,
       acceptedAnswer: {
         "@type": "Answer",
-        text: item.answer,
+        text:
+          !FEATURES.weddings && item.answerWithoutWeddings
+            ? item.answerWithoutWeddings
+            : item.answer,
       },
     })),
   };
