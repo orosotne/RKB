@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { ArrowRight } from "lucide-react";
+import { FEATURES } from "@/lib/site-config";
 
 interface InternalLinkItem {
   href: string;
@@ -18,6 +19,10 @@ export default function InternalLinks({ links }: InternalLinksProps) {
   const nav = useTranslations("navigation");
   const locale = useLocale();
 
+  const visibleLinks = FEATURES.weddings
+    ? links
+    : links.filter((link) => link.href !== "/svadby");
+
   return (
     <section className="py-16 md:py-24 bg-cream border-t border-charcoal/5">
       <div className="container-custom">
@@ -25,7 +30,7 @@ export default function InternalLinks({ links }: InternalLinksProps) {
           {t("discover_more")}
         </h3>
         <div className="flex flex-wrap gap-6">
-          {links.map((link) => (
+          {visibleLinks.map((link) => (
             <Link
               key={link.href}
               href={`/${locale}${link.href}`}

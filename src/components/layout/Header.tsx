@@ -11,6 +11,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { useScroll } from "@/hooks/useScroll";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { Button } from "@/components/ui/Button";
+import { FEATURES } from "@/lib/site-config";
 
 export default function Header() {
   const isScrolled = useScroll(50);
@@ -24,7 +25,9 @@ export default function Header() {
   const navLinks = useMemo(() => [
     { href: `/${locale}`, label: t("home") },
     { href: `/${locale}/pribeh`, label: t("story") },
-    { href: `/${locale}/svadby`, label: t("weddings") },
+    ...(FEATURES.weddings
+      ? [{ href: `/${locale}/svadby`, label: t("weddings") }]
+      : []),
     { href: `/${locale}/galeria`, label: t("gallery") },
     { href: `/${locale}/kontakt`, label: t("contact") },
   ], [locale, t]);
@@ -77,16 +80,18 @@ export default function Header() {
           <div className="flex items-center gap-4 relative z-10">
             <LanguageSwitcher isScrolled={isScrolled} />
             
-            <Link
-              href={`/${locale}/kontakt`}
-              className={`hidden md:inline-flex items-center px-6 py-2.5 text-sm uppercase tracking-wider transition-all duration-300 ${
-                isScrolled
-                  ? "bg-gold text-charcoal hover:bg-gold-dark"
-                  : "bg-white/10 text-white backdrop-blur-sm border border-white/30 hover:bg-white/20"
-              }`}
-            >
-              {t("reserve")}
-            </Link>
+            {FEATURES.reserveCta && (
+              <Link
+                href={`/${locale}/kontakt`}
+                className={`hidden md:inline-flex items-center px-6 py-2.5 text-sm uppercase tracking-wider transition-all duration-300 ${
+                  isScrolled
+                    ? "bg-gold text-charcoal hover:bg-gold-dark"
+                    : "bg-white/10 text-white backdrop-blur-sm border border-white/30 hover:bg-white/20"
+                }`}
+              >
+                {t("reserve")}
+              </Link>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -141,19 +146,21 @@ export default function Header() {
                 </motion.div>
               ))}
               
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mt-8"
-              >
-                <Button
-                  href={`/${locale}/kontakt`}
-                  onClick={() => setIsMenuOpen(false)}
+              {FEATURES.reserveCta && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="mt-8"
                 >
-                  {t("reserve")}
-                </Button>
-              </motion.div>
+                  <Button
+                    href={`/${locale}/kontakt`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t("reserve")}
+                  </Button>
+                </motion.div>
+              )}
             </motion.nav>
           </motion.div>
         )}

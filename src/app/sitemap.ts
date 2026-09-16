@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next';
 import { locales } from '@/i18n/request';
-import { SITE_URL } from '@/lib/site-config';
+import { SITE_URL, FEATURES } from '@/lib/site-config';
 import restorationConfig from '../../data/restoration-photos.json';
 
 const paths = [
   '',
   '/pribeh',
-  '/svadby',
+  ...(FEATURES.weddings ? ['/svadby'] : []),
   '/galeria',
   '/kontakt',
   '/oznamenie',

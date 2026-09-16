@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { ArrowRight, Camera, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import FadeInOnScroll from "@/components/interactive/FadeInOnScroll";
+import { FEATURES } from "@/lib/site-config";
 
 export default function ServicesSection() {
   const t = useTranslations("services");
@@ -18,18 +19,22 @@ export default function ServicesSection() {
       image: "/images/gallery/interior/interior-1.webp",
       icon: Camera,
     },
-    {
-      key: "exterior",
-      href: `/${locale}/svadby`,
-      image: "/images/wedding-hero.webp",
-      icon: Heart,
-    },
+    ...(FEATURES.weddings
+      ? [
+          {
+            key: "exterior",
+            href: `/${locale}/svadby`,
+            image: "/images/wedding-hero.webp",
+            icon: Heart,
+          },
+        ]
+      : []),
   ];
 
   return (
     <section className="py-24 md:py-32 bg-slate-castle">
       <div className="container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className={`grid grid-cols-1 gap-8 ${services.length > 1 ? "md:grid-cols-2" : "max-w-3xl mx-auto"}`}>
           {services.map((service, index) => (
             <FadeInOnScroll
               key={service.key}

@@ -26,3 +26,14 @@ export const CONTACT = {
   },
   geo: { lat: "48.5819", lng: "18.2461" },
 } as const;
+
+/**
+ * Temporary visibility switches. Flip back to `true` to restore the section
+ * everywhere (nav, footer, home-page card, cross-links, sitemap, indexing).
+ */
+export const FEATURES = {
+  /** "Svadby" page link, home-page card and internal cross-links */
+  weddings: false,
+  /** "Rezervovať" CTA in the header and the mobile menu */
+  reserveCta: false,
+} as const;

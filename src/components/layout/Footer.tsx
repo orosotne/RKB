@@ -4,7 +4,7 @@ import { memo, useMemo } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { Instagram, Facebook, Mail, Phone, MapPin, Building2 } from "lucide-react";
-import { BRAND, CONTACT } from "@/lib/site-config";
+import { BRAND, CONTACT, FEATURES } from "@/lib/site-config";
 
 const Footer = memo(function Footer() {
   const t = useTranslations("footer");
@@ -14,7 +14,9 @@ const Footer = memo(function Footer() {
 
   const navLinks = useMemo(() => [
     { href: `/${locale}/pribeh`, label: nav("story") },
-    { href: `/${locale}/svadby`, label: nav("weddings") },
+    ...(FEATURES.weddings
+      ? [{ href: `/${locale}/svadby`, label: nav("weddings") }]
+      : []),
     { href: `/${locale}/galeria`, label: nav("gallery") },
     { href: `/${locale}/kontakt`, label: nav("contact") },
   ], [locale, nav]);
